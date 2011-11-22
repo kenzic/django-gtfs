@@ -1,0 +1,186 @@
+[
+    {
+        "pk": 1,
+        "model": "gtfs.routetype",
+        "fields": {
+            "name": "Tram, Streetcar, Light rail",
+            "value": 0,
+            "description": "Any light rail or street level system within a metropolitan area."
+        }
+    },
+    {
+        "pk": 2,
+        "model": "gtfs.routetype",
+        "fields": {
+            "name": "Subway, Metro",
+            "value": 1,
+            "description": "Any underground rail system within a metropolitan area."
+        }
+    },
+    {
+        "pk": 3,
+        "model": "gtfs.routetype",
+        "fields": {
+            "name": "Rail",
+            "value": 2,
+            "description": "Used for intercity or long-distance travel."
+        }
+    },
+    {
+        "pk": 4,
+        "model": "gtfs.routetype",
+        "fields": {
+            "name": "Bus",
+            "value": 3,
+            "description": "Used for short- and long-distance bus routes."
+        }
+    },
+    {
+        "pk": 5,
+        "model": "gtfs.routetype",
+        "fields": {
+            "name": "Ferry",
+            "value": 4,
+            "description": "Used for short- and long-distance boat service."
+        }
+    },
+    {
+        "pk": 6,
+        "model": "gtfs.routetype",
+        "fields": {
+            "name": "Cable car",
+            "value": 5,
+            "description": "Used for street-level cable cars where the cable runs beneath the car."
+        }
+    },
+    {
+        "pk": 7,
+        "model": "gtfs.routetype",
+        "fields": {
+            "name": "Gondola, Suspended cable car. ",
+            "value": 6,
+            "description": "Typically used for aerial cable cars where the car is suspended from the cable."
+        }
+    },
+    {
+        "pk": 8,
+        "model": "gtfs.routetype",
+        "fields": {
+            "name": "Funicular",
+            "value": 7,
+            "description": "Any rail system designed for steep inclines."
+        }
+    },
+    {
+        "pk": 1,
+        "model": "gtfs.direction",
+        "fields": {
+            "name": "Outbound",
+            "value": 0
+        }
+    },
+    {
+        "pk": 2,
+        "model": "gtfs.direction",
+        "fields": {
+            "name": "Inbound",
+            "value": 1
+        }
+    },
+    {
+        "pk": 1,
+        "model": "gtfs.pickuptype",
+        "fields": {
+            "name": "Regularly scheduled pickup",
+            "value": 0
+        }
+    },
+    {
+        "pk": 2,
+        "model": "gtfs.pickuptype",
+        "fields": {
+            "name": "No pickup available",
+            "value": 1
+        }
+    },
+    {
+        "pk": 3,
+        "model": "gtfs.pickuptype",
+        "fields": {
+            "name": "Must phone agency to arrange pickup",
+            "value": 2
+        }
+    },
+    {
+        "pk": 4,
+        "model": "gtfs.pickuptype",
+        "fields": {
+            "name": "Must coordinate with driver to arrange pickup",
+            "value": 3
+        }
+    },
+    {
+        "pk": 1,
+        "model": "gtfs.dropofftype",
+        "fields": {
+            "name": "Regularly scheduled drop off",
+            "value": 0
+        }
+    },
+    {
+        "pk": 2,
+        "model": "gtfs.dropofftype",
+        "fields": {
+            "name": "No drop off available",
+            "value": 1
+        }
+    },
+    {
+        "pk": 3,
+        "model": "gtfs.dropofftype",
+        "fields": {
+            "name": "Must phone agency to arrange drop off",
+            "value": 2
+        }
+    },
+    {
+        "pk": 4,
+        "model": "gtfs.dropofftype",
+        "fields": {
+            "name": "Must coordinate with driver to arrange drop off",
+            "value": 3
+        }
+    },
+    {
+        "pk": 1,
+        "model": "gtfs.exceptiontype",
+        "fields": {
+            "name": "service has been added for the specified date.",
+            "value": 1
+        }
+    },
+    {
+        "pk": 2,
+        "model": "gtfs.exceptiontype",
+        "fields": {
+            "name": "service has been removed for the specified date.",
+            "value": 2
+        }
+    },
+    {
+        "pk": 1,
+        "model": "gtfs.paymentmethod",
+        "fields": {
+            "name": "Fare is paid on board.",
+            "vale": 0
+        }
+    },
+    {
+        "pk": 2,
+        "model": "gtfs.paymentmethod",
+        "fields": {
+            "name": "Fare must be paid before boarding.",
+            "vale": 1
+        }
+    }
+]
