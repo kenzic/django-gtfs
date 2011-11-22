@@ -1,45 +1,71 @@
-from csv import DictReader
+from csv import DictReader     
+from django.db.transaction import commit_on_success
 from django.core.management.base import BaseCommand, CommandError    
 from django.contrib.gis.geos import fromstr
-from datetime import time
-from gtfs.models import Agency, Stop, Zone, Route, RouteType, Service, Direction, Block, Shape, Trip, PickupType, DropOffType, StopTime  
+from datetime import time, date, datetime
+from gtfs.models import *  
 import os
-                   
-GTFS_FILES = [
-    "agency.txt", 
-    "stops.txt", 
-    "routes.txt", 
-    "trips.txt", 
-    "stop_times.txt", 
-    "calendar.txt", 
-    "calendar_dates.txt",
-    "fare_attributes.txt",
-    "fare_rules.txt",
-    "shapes.txt",
-    "frequencies.txt",
-    "transfers.txt"]
-    
+
 class Command(BaseCommand):
     args = 'dir'
     help = "Import all the gtfs data it can from the specified directory"
-    
+          
+    @commit_on_success
     def handle(self, *args, **options):
+        self.stdout.write("Starting loader at %s\n" % str(datetime.now()))
         for root_dir in args:
             self.stdout.write("Treating directory %s\n" % root_dir)
             # load agency :
-            """self._load_agency(root_dir)
+            self._load_agency(root_dir)
             self._load_stops(root_dir)
             self._load_routes(root_dir)
             self._load_shapes(root_dir)
-            self._load_trips(root_dir)"""
+            self._load_trips(root_dir)
             self._load_stop_times(root_dir)
-                               
-    def _load_stop_times(self, root_dir): 
-        fields = [('headsign', 'stop_headsign'),
-            ('shape_dist_traveled', 'shape_dist_traveled')]
+            self._load_calendar(root_dir)
+            self._load_calendar_dates(root_dir)
+            self.stdout.write("Loaded directory %s at %s\n" % (root_dir, str(datetime.now())))
+        self.stdout.write("Loading finished at %s\n" % (str(datetime.now())))
+        
+
+    def _load_calendar_dates(self, root_dir): 
+        fields = []
         def create_cmd(line):
-            arrival_time = time(*map(int, check_field(line, 'arrival_time').split(":")))
-            departure_time = time(*map(int, check_field(line, 'departure_time').split(":"))) 
+            temp = check_field(line, 'date')
+            date = date(int(temp[0:4]), int(temp[4:6]), int(temp[6:8]))
+            return CalendarDate.objects.get_or_create(service=Service.objects.get(service_id=check_field(line, 'service_id')),
+                                    date=date,
+                                    exception_type=ExceptionType.objects.get(value=check_field(line, 'exception_type')))
+
+        self._load(root_dir, "calendar_dates.txt", create_cmd, fields, optional=True)
+
+    def _load_calendar(self, root_dir): 
+        fields = []
+        def create_cmd(line):
+            temp = check_field(line, 'start_date')
+            start_date = date(int(temp[0:4]), int(temp[4:6]), int(temp[6:8]))
+            temp = check_field(line, 'end_date')
+            end_date = date(int(temp[0:4]), int(temp[4:6]), int(temp[6:8]))
+            return Calendar.objects.get_or_create(service=Service.objects.get(service_id=check_field(line, 'service_id')),
+                                   monday=check_field(line, 'monday'), 
+                                   tuesday=check_field(line, 'tuesday'),
+                                   wednesday=check_field(line, 'wednesday'),
+                                   thursday=check_field(line, 'thursday'),
+                                   friday=check_field(line, 'friday'),
+                                   saturday=check_field(line, 'saturday'),
+                                   sunday=check_field(line, 'sunday'),
+                                   start_date=start_date, 
+                                   end_date=end_date)
+
+        self._load(root_dir, "calendar.txt", create_cmd, fields, optional=False)
+                           
+    def _load_stop_times(self, root_dir): 
+        fields = []
+        def create_cmd(line):   
+            (hour, minute, sec) = map(int, check_field(line, 'arrival_time').split(":"))
+            arrival_time = time(hour%24, minute%60, sec%60) 
+            (hour, minute, sec) = map(int, check_field(line, 'departure_time').split(":"))
+            departure_time = time(hour%24, minute%60, sec%60)
             (stop, created) = StopTime.objects.get_or_create(trip=Trip.objects.get(trip_id=check_field(line, 'trip_id')),
                                     stop=Stop.objects.get(stop_id=check_field(line, 'stop_id')), 
                                     arrival_time=arrival_time,
@@ -139,7 +165,7 @@ class Command(BaseCommand):
                      
     def _load(self, root_dir, filename, get_or_create_cmd, fields, optional=False):
         count = 0
-        try:   
+        try:
             reader = DictReader(open(os.path.join(root_dir, filename), 'rb'))
             for line in reader:
                 (obj, created) = get_or_create_cmd(line)                    
@@ -148,13 +174,17 @@ class Command(BaseCommand):
                         obj.__dict__[key] = check_field(line, value)
                         
                 obj.save()
-                count += 1  
+                count += 1
+                if count%10000 == 0:
+                    self.stdout.write("\tLoading %s lines from filename %s, still in progress...\n" % (count, filename))     
             self.stdout.write("%s loaded from %s\n" % (count, filename))
         except CommandError, r:
             raise r
         except Exception, e:
-            raise CommandError("Could not load %s data properly, failed at line %s. Fix the following problems, this file is required : " % (filename, count) + str(e) )
-        
+            if not optional:
+                raise CommandError("Could not load %s data properly, failed at line %s. Fix the following problems, this file is required : " % (filename, count) + str(e) )
+            else:
+                self.stdout.write("Warning file %s not found or not properly loaded.\n" % filename)
                 
 def check_field(reader, field, optional=False):
     if field in reader and reader[field]:
