@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from django.contrib.gis.db import models
+from django.contrib.gis.db import models 
 
 class Agency(models.Model):
     name = models.TextField()
     url = models.URLField()
-    timezone = models.TimeZoneField()
+    timezone = models.CharField(max_length=255)
     agency_id = models.CharField(max_length=255, null=True, blank=True)
     lang = models.CharField(max_length=2, null=True, blank=True)
     phone = models.CharField(max_length=255, null=True, blank=True)
@@ -129,9 +129,9 @@ class FareAttribute(models.Model):
 class FareRule(models.Model):
     fare = models.ForeignKey(Fare)
     route = models.ForeignKey(Route, null=True, blank=True)
-    origin = models.ForeignKey(Zone, null=True, blank=True)
-    destination = models.ForeignKey(Zone, null=True, blank=True)
-    contains = models.ForeignKey(Zone, null=True, blank=True)
+    origin = models.ForeignKey(Zone, null=True, blank=True, related_name="origin")
+    destination = models.ForeignKey(Zone, null=True, blank=True, related_name="destination")
+    contains = models.ForeignKey(Zone, null=True, blank=True, related_name="contains")
     
 class Frequency(models.Model):
     trip = models.ForeignKey(Trip)
@@ -141,7 +141,7 @@ class Frequency(models.Model):
     exact_times = models.IntegerField(null=True, blank=True)
     
 class Transfer(models.Model):
-    from_stop = models.ForeignKey(Stop)
-    to_stop = models.ForeignKey(Stop)
+    from_stop = models.ForeignKey(Stop, related_name="from_stop")
+    to_stop = models.ForeignKey(Stop, related_name="to_stop")
     transfer_type = models.IntegerField()
     min_transfer_time = models.IntegerField(null=True, blank=True)
