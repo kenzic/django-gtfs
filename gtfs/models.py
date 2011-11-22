@@ -23,7 +23,8 @@ class Stop(models.Model):
     code = models.CharField(max_length=255, null=True, blank=True)
     zone = models.ForeignKey(Zone, null=True, blank=True)
     location_type = models.IntegerField(null=True, blank=True) #TODO add choices for 0=blank=Stop and 1=Station
-    parent_station = models.ForeignKey('self', null=True, blank=True)         
+    parent_station = models.ForeignKey('self', null=True, blank=True)  
+    objects = models.GeoManager()       
                                             
 class RouteType(models.Model):
     """Referential data"""  
