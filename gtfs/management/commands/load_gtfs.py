@@ -1,7 +1,8 @@
 from csv import DictReader
 from django.core.management.base import BaseCommand, CommandError    
 from django.contrib.gis.geos import fromstr
-from gtfs.models import Agency, Stop, Zone, Route, RouteType, Service, Direction, Block, Shape, Trip  
+from datetime import time
+from gtfs.models import Agency, Stop, Zone, Route, RouteType, Service, Direction, Block, Shape, Trip, PickupType, DropOffType, StopTime  
 import os
                    
 GTFS_FILES = [
@@ -26,12 +27,35 @@ class Command(BaseCommand):
         for root_dir in args:
             self.stdout.write("Treating directory %s\n" % root_dir)
             # load agency :
-            self._load_agency(root_dir)
+            """self._load_agency(root_dir)
             self._load_stops(root_dir)
             self._load_routes(root_dir)
             self._load_shapes(root_dir)
-            self._load_trips(root_dir)
-
+            self._load_trips(root_dir)"""
+            self._load_stop_times(root_dir)
+                               
+    def _load_stop_times(self, root_dir): 
+        fields = [('headsign', 'stop_headsign'),
+            ('shape_dist_traveled', 'shape_dist_traveled')]
+        def create_cmd(line):
+            arrival_time = time(*map(int, check_field(line, 'arrival_time').split(":")))
+            departure_time = time(*map(int, check_field(line, 'departure_time').split(":"))) 
+            (stop, created) = StopTime.objects.get_or_create(trip=Trip.objects.get(trip_id=check_field(line, 'trip_id')),
+                                    stop=Stop.objects.get(stop_id=check_field(line, 'stop_id')), 
+                                    arrival_time=arrival_time,
+                                    departure_time=departure_time,
+                                    stop_sequence=check_field(line, 'stop_sequence'))
+            # create pickup_type
+            if check_field(line, 'pickup_type', optional=True):
+                stop.pickup_type = PickupType.objects.get(value=check_field(line, 'pickup_type'))
+                
+            # check drop off type :
+            if check_field(line, 'drop_off_type', optional=True):
+                stop.drop_off_type = DropOffType.objects.get(value = check_field(line, 'drop_off_type'))
+            return (stop, created)
+             
+        self._load(root_dir, "stop_times.txt", create_cmd, fields, optional=False)
+        
     def _load_stops(self, root_dir):  
         fields = [('desc', 'stop_desc'),
             ('code', 'stop_code'),

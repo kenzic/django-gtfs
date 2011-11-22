@@ -88,6 +88,7 @@ class StopTime(models.Model):
     stop_sequence = models.IntegerField()
     headsign = models.TextField(null=True, blank=True)
     pickup_type = models.ForeignKey(PickupType, null=True, blank=True)
+    drop_off_type = models.ForeignKey(DropOffType, null=True, blank=True)
     shape_dist_traveled = models.FloatField(null=True, blank=True)
     
 class Calendar(models.Model):
