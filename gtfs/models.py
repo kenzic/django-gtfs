@@ -30,7 +30,7 @@ class RouteType(models.Model):
     """Referential data"""  
     name = models.CharField(max_length=50)
     description = models.TextField()
-    value = models.IntegerField()
+    value = models.IntegerField(unique=True)
     
 class Route(models.Model):
     route_id = models.CharField(max_length=255, unique=True)
@@ -49,16 +49,17 @@ class Service(models.Model):
 class Direction(models.Model):
     """Referential data"""
     name = models.CharField(max_length=20)
-    value = models.IntegerField()
+    value = models.IntegerField(unique=True)
                                   
 class Block(models.Model):
     block_id = models.CharField(max_length=255, unique=True)
                                                           
 class Shape(models.Model):
-    shape_id = models.CharField(max_length=255, unique=True)
+    shape_id = models.CharField(max_length=255)
     geopoint = models.PointField()
     pt_sequence = models.IntegerField()
-    dist_traveled = models.FloatField(null=True, blank=True)
+    dist_traveled = models.FloatField(null=True, blank=True) 
+    objects = models.GeoManager()
     
 class Trip(models.Model):
     route = models.ForeignKey(Route)
@@ -67,7 +68,7 @@ class Trip(models.Model):
     headsign = models.TextField(null=True, blank=True)
     direction = models.ForeignKey(Direction, null=True, blank=True)
     block = models.ForeignKey(Block, null=True, blank=True)
-    shape = models.ForeignKey(Shape, null=True, blank=True)
+    shape_id = models.CharField(max_length=255, null=True, blank=True)
                                                                      
 class PickupType(models.Model):
     """Referential data"""
