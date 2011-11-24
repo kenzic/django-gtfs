@@ -18,7 +18,8 @@ class mytest(test):
 
 setup(
     name = "django-gtfs",
-    packages = ["gtfs", "gtfs.migrations"],
+    packages = ["gtfs", "gtfs.migrations", "gtfs.management"],
+    package_data={'gtfs': ['fixtures/initial_data.json']},
     version = "0.0.1",
     description = "Django application to load/dump and more generally handle GTFS transit data specification",
     author = "Olivier Girardot",
