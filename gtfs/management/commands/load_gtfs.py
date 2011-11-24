@@ -10,7 +10,6 @@ class Command(BaseCommand):
     args = 'dir'
     help = "Import all the gtfs data it can from the specified directory"
           
-    @commit_on_success
     def handle(self, *args, **options):
         self.stdout.write("Starting loader at %s\n" % str(datetime.now()))
         for root_dir in args:
